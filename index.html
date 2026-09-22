@@ -522,7 +522,7 @@ async function openLB(){
   const box = $lb.querySelector('.list'); box.innerHTML = '<div class="row dim">…</div>';
   $lb.querySelector('h2').textContent = T('lbTitle');
   const me = $lb.querySelector('.me'); me.textContent = '';
-  const top = await lbTop(20);
+  const top = await lbTop(10);
   if (!top) { box.innerHTML = `<div class="row dim">${T('lbErr')}</div>`; return; }
   if (!top.length) box.innerHTML = `<div class="row dim">${T('lbEmpty')}</div>`;
   else box.innerHTML = top.map(r => `<div class="row${lbLast && lbLast.username && r.username === lbLast.username ? ' mine' : ''}"><span class="rk">${r.rank <= 3 ? ['🥇','🥈','🥉'][r.rank-1] : r.rank}</span><span class="nm">${esc(r.username ? '@' + r.username : (r.first_name || 'anon'))}</span><span class="sc">${Number(r.best).toFixed(1)}$</span></div>`).join('');
