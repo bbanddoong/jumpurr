@@ -123,6 +123,7 @@
   #settings input[type=checkbox]:checked{background:#ff6b8a;} #settings input[type=checkbox]:checked::after{transform:translateX(18px);}
   #settings input[type=checkbox]:focus-visible{outline:3px solid #fff;}
   #langs{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;}
+  #settings,#settings *{touch-action:manipulation;}
   #langs button,#settings .primary{font:900 15px "Nunito",system-ui,sans-serif;padding:10px 12px;border-radius:12px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;cursor:pointer;}
   #langs button.on{background:var(--mint);color:var(--ink);border-color:var(--mint);}
   #settings .primary{background:var(--mint);color:var(--ink);border-color:var(--ink);box-shadow:0 4px 0 var(--ink);}
@@ -165,8 +166,8 @@
       <label class="row"><span id="muteLabel"></span><input type="checkbox" id="muteChk"></label>
       <label class="row"><span><span id="fillLabel"></span><small id="fillHint" style="display:block;font-weight:700;opacity:.6;font-size:11px;margin-top:2px"></small></span><input type="checkbox" id="fillChk"></label>
       <div class="row col"><span id="langLabel"></span>
-        <div id="langs"><button data-lang="ko">한국어</button><button data-lang="en">English</button><button data-lang="zh">中文</button><button data-lang="ja">日本語</button></div></div>
-      <button id="closeSet" class="primary"></button>
+        <div id="langs"><button type="button" data-lang="ko">한국어</button><button type="button" data-lang="en">English</button><button type="button" data-lang="zh">中文</button><button type="button" data-lang="ja">日本語</button></div></div>
+      <button type="button" id="closeSet" class="primary"></button>
     </div>
   </div>
   <button id="jumpBtn" aria-label="점프">JUMP</button>
@@ -255,21 +256,22 @@ if (!I18N[LANG]) LANG = 'en';
 const T = k => I18N[LANG][k];
 const zoneName = z => T('zones')[ZONES.indexOf(z)];
 function applyLang(){
-  document.documentElement.lang = LANG;
-  const h = T('howto'), m = MOBILE ? 1 : 0;
-  document.getElementById('howto').innerHTML = [['◀▶','', h.move[m]], ['⤒','mint', h.jump[m]], ['H','pink', h.hype], ['$','blue', h.liq]]
-    .map(([ic, cls, txt]) => `<div class="row"><span class="ic ${cls}">${ic}</span><span>${txt}</span></div>`).join('');
-  const sb = document.getElementById('startBtn'); if (sb) sb.textContent = dead ? T('retry') : T('start');
-  document.getElementById('jumpBtn').textContent = T('jump');
-  document.getElementById('tapHint').textContent = T('tap');
-  document.getElementById('djLabel').textContent = T('dj');
-  document.getElementById('setTitle').textContent = T('settings'); document.getElementById('muteLabel').textContent = T('mute');
-  document.getElementById('langLabel').textContent = T('lang'); document.getElementById('closeSet').textContent = T('close');
-  document.getElementById('fillLabel').textContent = T('fill'); document.getElementById('fillHint').textContent = T('fillHint');
+  const $ = id => document.getElementById(id);
+  const set = (id, v, html) => { const el = $(id); if (!el) return; if (html) el.innerHTML = v; else el.textContent = v; };
+  // highlight first, so it never waits on anything else
   document.querySelectorAll('#langs button').forEach(b => b.classList.toggle('on', b.dataset.lang === LANG));
-  if (curZone) { $zone.firstChild.textContent = zoneName(curZone); $zoneSub.textContent = T('subs')[ZONES.indexOf(curZone)]; }
+  document.documentElement.lang = LANG;
+  try { const h = T('howto'), m = MOBILE ? 1 : 0;
+    set('howto', [['◀▶','', h.move[m]], ['⤒','mint', h.jump[m]], ['H','pink', h.hype], ['$','blue', h.liq]]
+      .map(([ic, cls, txt]) => `<div class="row"><span class="ic ${cls}">${ic}</span><span>${txt}</span></div>`).join(''), true); } catch(e) {}
+  set('startBtn', dead ? T('retry') : T('start'));
+  set('jumpBtn', T('jump')); set('tapHint', T('tap')); set('djLabel', T('dj'));
+  set('setTitle', T('settings')); set('muteLabel', T('mute')); set('langLabel', T('lang')); set('closeSet', T('close'));
+  set('fillLabel', T('fill')); set('fillHint', T('fillHint'));
+  if (curZone) { try { $zone.firstChild.textContent = zoneName(curZone); $zoneSub.textContent = T('subs')[ZONES.indexOf(curZone)]; } catch(e) {} }
   const bub = document.querySelector('#overlay .bubble'); if (bub) bub.textContent = T('bubble');
-  if (dead) renderGameOver();
+  const bl = $('bestLine'); if (bl && !dead) bl.textContent = best ? `${T('best')} ${best.toFixed(1)}$` : '';
+  if (dead) { try { renderGameOver(); } catch(e) {} }
 }
 
 // ---------- audio (synthesized, no files) ----------
@@ -407,15 +409,23 @@ const $settings = document.getElementById('settings'), $gear = document.getEleme
 let paused = false;
 function openSettings(){ audioInit(); paused = true; $muteChk.checked = AU.muted; $fillChk.checked = FILL; $settings.hidden = false; document.getElementById('closeSet').focus(); }
 function closeSettings(){ $settings.hidden = true; paused = false; acc = 0; lastT = 0; if (player) player.jumpHeld = false; }
-$gear.addEventListener('click', e => { e.stopPropagation(); openSettings(); });
+// tap(): fire on click OR touchend (some webviews, e.g. Telegram iOS, swallow click) — deduped
+function tap(el, fn){ let last = 0; const h = e => { const now = Date.now(); if (now - last < 400) return; last = now; if (e.cancelable && e.type === 'touchend') e.preventDefault(); fn(e); };
+  el.addEventListener('click', h); el.addEventListener('touchend', h, { passive: false }); }
+tap($gear, e => { e.stopPropagation(); openSettings(); });
 $gear.addEventListener('pointerdown', e => e.stopPropagation());
 $settings.addEventListener('pointerdown', e => e.stopPropagation());
-$settings.addEventListener('click', e => { if (e.target === $settings) closeSettings(); });
-document.getElementById('closeSet').addEventListener('click', closeSettings);
-$muteChk.addEventListener('change', () => setMute($muteChk.checked));
+$settings.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
+tap($settings, e => { if (e.target === $settings) closeSettings(); });
+tap(document.getElementById('closeSet'), closeSettings);
 const $fillChk = document.getElementById('fillChk');
-$fillChk.addEventListener('change', () => { FILL = $fillChk.checked; try { localStorage.setItem('jumpurr-fill', FILL ? '1' : '0'); } catch(e) {} fit(); if (!$overlay.hidden) buildRing(); });
-document.getElementById('langs').addEventListener('click', e => { const b = e.target.closest('button[data-lang]'); if (!b) return; LANG = b.dataset.lang; try { localStorage.setItem('jumpurr-lang', LANG); } catch(err) {} applyLang(); });
+const setFill = v => { FILL = v; $fillChk.checked = v; try { localStorage.setItem('jumpurr-fill', v ? '1' : '0'); } catch(e) {} fit(); if (!$overlay.hidden) buildRing(); };
+const setMuteUI = v => { setMute(v); $muteChk.checked = v; };
+$muteChk.addEventListener('change', () => setMuteUI($muteChk.checked));
+$fillChk.addEventListener('change', () => setFill($fillChk.checked));
+tap($muteChk.closest('label'), e => { if (e.type === 'touchend') setMuteUI(!AU.muted); });
+tap($fillChk.closest('label'), e => { if (e.type === 'touchend') setFill(!FILL); });
+tap(document.getElementById('langs'), e => { const b = e.target.closest('button[data-lang]'); if (!b) return; LANG = b.dataset.lang; try { localStorage.setItem('jumpurr-lang', LANG); } catch(err) {} applyLang(); });
 addEventListener('keydown', e => { if (e.key === 'Escape' && !$settings.hidden) closeSettings(); });
 document.addEventListener('visibilitychange', () => { if (document.hidden && running && !paused) openSettings(); });
 addEventListener('blur', () => { if (running && !paused) openSettings(); });
