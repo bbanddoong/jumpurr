@@ -79,13 +79,19 @@
   @media (prefers-reduced-motion:reduce){ #overlay .bubble{animation:none;} }
   #overlay h1{font-family:"Jua",sans-serif;font-size:clamp(48px,14vw,84px);margin:0;line-height:1;color:#fff;
               text-shadow:0 6px 0 var(--ink),0 0 30px rgba(143,240,208,.5);letter-spacing:.02em;}
-  #overlay:not(.over){justify-content:flex-start;padding-top:clamp(56px,13vh,110px);gap:18px;}
+  #overlay:not(.over){justify-content:flex-start;padding-top:clamp(40px,9%,90px);padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));gap:0;overflow:hidden;}
+  #startBox{display:flex;flex-direction:column;align-items:center;gap:12px;transform-origin:top center;width:100%;}
+  #overlay:not(.over) .title{font-size:clamp(40px,12vw,72px);}
+  #overlay:not(.over) .howto .row{font-size:12.5px;}
+  #overlay:not(.over) .hint{margin-top:2px;}
   .logoRing{position:absolute;inset:0;pointer-events:none;z-index:-1;}
   .logoRing .tile{position:absolute;left:0;top:0;width:22px;height:22px;border-radius:5px;border:1.5px solid var(--ink);background:#d9a35f;box-shadow:0 2px 0 var(--ink);overflow:hidden;will-change:transform;}
   .logoRing .tile img{width:100%;height:100%;display:block;object-fit:cover;}
   @keyframes tileBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
   #overlay{padding-inline:38px;}
   @media (prefers-reduced-motion:reduce){ .logoRing .tile{animation:none;} }
+  #overlay .presents a{color:#fff;text-decoration:none;border-bottom:2px solid var(--mint);padding-bottom:1px;pointer-events:auto;cursor:pointer;}
+  #overlay .presents a:active{opacity:.7;}
   #overlay .presents{font:900 13px "Nunito",system-ui,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:var(--mint);opacity:.95;}
   #overlay .title span{display:inline-block;animation:tj .9s cubic-bezier(.3,1.4,.4,1) both;}
   #overlay .title span:nth-child(1){animation-delay:.05s} #overlay .title span:nth-child(2){animation-delay:.11s} #overlay .title span:nth-child(3){animation-delay:.17s}
@@ -100,10 +106,12 @@
   .howto kbd{display:inline-block;font:900 11px "Nunito",system-ui,sans-serif;padding:1px 6px;border-radius:6px;background:#fff;color:var(--ink);border:1.5px solid var(--ink);box-shadow:0 2px 0 var(--ink);margin:0 1px;vertical-align:1px;}
   .howto b{color:var(--mint);} .howto .liq{color:#ff6b8a;font-weight:900;}
   @media (prefers-reduced-motion:reduce){ #overlay .title span{animation:none;} }
+  #overlay button,#overlay .howto,#overlay .hint{flex-shrink:0;}
   #overlay .hint{font:800 12px "Nunito",system-ui,sans-serif;color:rgba(255,255,255,.75);text-align:center;line-height:1.4;}
   #overlay .hint b{color:var(--mint);}
   #overlay .credit{font:900 13px "Nunito",system-ui,sans-serif;letter-spacing:.08em;color:var(--mint);opacity:.9;margin-top:-6px;}
   #overlay .credit b{color:#fff;}
+  #overlay .credit .alink{text-decoration:none;pointer-events:auto;cursor:pointer;} #overlay .credit .alink b{border-bottom:1.5px solid var(--mint);}
   #overlay .card .credit{margin-top:8px;font-size:11px;opacity:.7;}
   #overlay p{margin:0;font-size:15px;opacity:.9;max-width:28ch;line-height:1.5;}
   #overlay .big{font-family:"Jua";font-size:clamp(36px,10vw,56px);color:var(--mint);margin:4px 0;font-variant-numeric:tabular-nums;}
@@ -208,13 +216,15 @@
   </div>
   <button id="jumpBtn" aria-label="점프">JUMP</button>
   <div id="overlay">
-    <div class="presents">JUN.hl presents</div>
+    <div id="startBox">
+    <div class="presents"><a id="authorLink" href="https://x.com/KORypto_JUN" target="_blank" rel="noopener">JUN.hl</a> presents</div>
     <h1 class="title" aria-label="Jumpurr"><span>J</span><span>u</span><span>m</span><span>p</span><span>u</span><span>r</span><span>r</span></h1>
     <div class="howto" id="howto"></div>
     <div class="best" id="bestLine"></div>
     <button id="startBtn">시작 (Space)</button>
     <button type="button" id="lbStart" class="lb-btn" hidden>🏆</button>
     <div class="hint" id="setHint"></div>
+    </div>
   </div>
 </div>
 
@@ -315,6 +325,7 @@ function applyLang(){
   const bub = document.querySelector('#overlay .bubble'); if (bub) bub.textContent = T('bubble');
   const bl = $('bestLine'); if (bl && !dead) bl.textContent = best ? `${T('best')} ${best.toFixed(1)}$` : '';
   if (dead) { try { renderGameOver(); } catch(e) {} }
+  requestAnimationFrame(fitStart);
 }
 
 // ---------- audio (synthesized, no files) ----------
@@ -502,10 +513,11 @@ function renderGameOver(){
   if (!lastOver) return; const { s, liq, isNew } = lastOver, z = zoneFor(s);
   $overlay.classList.add('over');
   $overlay.innerHTML = `<div class="card"><div class="lbl">${liq ? T('liq') : T('fell')}</div><div class="big">${s.toFixed(1)}$</div>
-    <div class="best">${window.__tgUser ? '@' + (window.__tgUser.username || window.__tgUser.first_name) + ' · ' : ''}${T('best')} ${best.toFixed(1)}$${isNew ? ' · NEW!' : ''}</div><div class="credit">made by <b>JUN.hl</b></div></div>
+    <div class="best">${window.__tgUser ? '@' + (window.__tgUser.username || window.__tgUser.first_name) + ' · ' : ''}${T('best')} ${best.toFixed(1)}$${isNew ? ' · NEW!' : ''}</div><div class="credit">made by <a class="alink" href="https://x.com/KORypto_JUN" target="_blank" rel="noopener"><b>JUN.hl</b></a></div></div>
     <div class="nftWrap"><img class="nft" src="${NFT_SRC}" alt=""><img class="tok" src="${PARTS.token.src}" alt=""></div><div class="bubble">${T('bubble')}</div>
     <div class="btnrow">${LB_URL ? `<button type="button" class="lb-btn">🏆 ${T('lb')}${lbLast && lbLast.rank ? ' #' + lbLast.rank : ''}</button>` : ''}<button id="startBtn" class="over-btn">${T('retry')}</button></div>`;
   const lbb = $overlay.querySelector('.lb-btn'); if (lbb) tap(lbb, openLB);
+  const al = $overlay.querySelector('.alink'); if (al) { tap(al, openX); al.addEventListener('pointerdown', e => e.stopPropagation()); }
   tap($overlay.querySelector('#startBtn'), start);
   buildRing();
 }
@@ -1090,6 +1102,13 @@ function loop(now){
   render(); if (!paused) bgmTick(); requestAnimationFrame(loop);
 }
 
+function fitStart(){
+  const box = document.getElementById('startBox'); if (!box || $overlay.hidden || $overlay.classList.contains('over')) return;
+  box.style.transform = 'none';
+  const cs = getComputedStyle($overlay), avail = $overlay.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  const need = box.scrollHeight, k = Math.min(1, avail / need);
+  box.style.transform = k < 1 ? `scale(${k.toFixed(3)})` : 'none';
+}
 function fit(){
   const r = wrap.parentElement.getBoundingClientRect();
   if (r.width < 10 || r.height < 10) return;
@@ -1102,11 +1121,14 @@ function fit(){
   wrap.style.width = (W*s) + 'px'; wrap.style.height = (H*s) + 'px';
 }
 tap(document.getElementById('closeLB'), closeLB);
+function openX(e){ e.preventDefault(); e.stopPropagation(); const u = 'https://x.com/KORypto_JUN'; const tg = window.Telegram && window.Telegram.WebApp; try { if (tg && tg.openLink) tg.openLink(u); else window.open(u, '_blank', 'noopener'); } catch(err) { location.href = u; } }
+tap(document.getElementById('authorLink'), openX);
+document.getElementById('authorLink').addEventListener('pointerdown', e => e.stopPropagation());
 $lb.addEventListener('pointerdown', e => e.stopPropagation()); $lb.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
 tap($lb, e => { if (e.target === $lb) closeLB(); });
 tap(document.getElementById('lbStart'), openLB);
-applyLang(); requestAnimationFrame(buildRing);
-addEventListener('resize', () => { fit(); if (!$overlay.hidden) buildRing(); }); fit(); reset(); requestAnimationFrame(loop);
+applyLang(); requestAnimationFrame(buildRing); requestAnimationFrame(fitStart);
+addEventListener('resize', () => { fit(); if (!$overlay.hidden) { buildRing(); fitStart(); } }); fit(); reset(); requestAnimationFrame(loop);
 })();
 </script>
 
