@@ -282,19 +282,19 @@ function skyColors(s){
 // ---------- i18n ----------
 const I18N = {
   ko: { setHint: 'Use <b>⚙ Settings</b> (top right) to change language, sound and screen mode', lb: '랭킹', lbTitle: '리더보드', lbMe: '내 순위', lbEmpty: '아직 기록이 없습니다', lbOff: '텔레그램에서 열면 랭킹에 참여할 수 있어요', lbErr: '랭킹을 불러오지 못했습니다', fill: '화면 꽉 채우기', fillHint: '끄면 확대된 고정 화면(기본)', howto: { move: ["<kbd>←</kbd><kbd>→</kbd> 또는 <kbd>A</kbd><kbd>D</kbd> 로 이동", "화면 <b>왼쪽 / 오른쪽</b>을 눌러 이동"], jump: ["<kbd>SPACE</kbd> 점프 · <b>길게</b> 누르면 더 높이", "<b>JUMP</b> 버튼 · <b>길게</b> 누르면 더 높이"], hype: "<b>H·Y·P·E</b> 글자를 모으면 소화기 비행 → <b>연타</b>로 부스트", tok: "<b>HYPE 토큰</b> 획득 시 짧은 시간 비행", usdc: "<b>USDC 토큰</b> 획득 시 1회 추가 점프 기회", liq: "올라오는 <span class=\"liq\">Liquidation Price</span>에 닿으면 게임 오버" },
-        start: '시작 (Space)', retry: '다시하기', best: '최고 기록', arrive: '{z} 도착!', liq: 'LIQUIDATED', fell: 'FELL', bubble: '이걸로 만족해?',
+        start: '시작', retry: '다시하기', best: '최고 기록', arrive: '{z} 도착!', liq: 'LIQUIDATED', fell: 'FELL', bubble: '이걸로 만족해?',
         dj: '더블 점프', tap: '연타! SPACE / JUMP ↑', liqLabel: 'LIQUIDATION PRICE', liqDown: 'LIQ PRICE ↓', settings: '설정', mute: '음소거', lang: '언어', close: '닫기',
         zones: ['땅','하늘','성층권','우주','달','화성','소행성대','토성','블랙홀','천국','???'], subs: ['GROUND','SKY','STRATOSPHERE','SPACE','TO THE MOON 🚀','MARS','ASTEROID BELT','SATURN','EVENT HORIZON','HEAVEN','VALHALLA'], jump: 'JUMP' },
   en: { setHint: 'Use <b>⚙ Settings</b> (top right) to change language, sound and screen mode', lb: 'Ranking', lbTitle: 'Leaderboard', lbMe: 'My rank', lbEmpty: 'No scores yet', lbOff: 'Open in Telegram to join the ranking', lbErr: 'Could not load the ranking', fill: 'Fill the screen', fillHint: 'Off = zoomed fixed view (default)', howto: { move: ["Move with <kbd>←</kbd><kbd>→</kbd> or <kbd>A</kbd><kbd>D</kbd>", "Tap the <b>left / right</b> side to move"], jump: ["<kbd>SPACE</kbd> to jump · <b>hold</b> for a higher jump", "<b>JUMP</b> button · <b>hold</b> for a higher jump"], hype: "Collect <b>H·Y·P·E</b> letters for a rocket ride → <b>mash</b> to boost", tok: "<b>HYPE token</b>: a short flight", usdc: "<b>USDC token</b>: one extra mid-air jump", liq: "Touch the rising <span class=\"liq\">Liquidation Price</span> and it's game over" },
-        start: 'Start (Space)', retry: 'Retry', best: 'Best', arrive: 'Reached {z}!', liq: 'LIQUIDATED', fell: 'FELL', bubble: 'Satisfied with that?',
+        start: 'Start', retry: 'Retry', best: 'Best', arrive: 'Reached {z}!', liq: 'LIQUIDATED', fell: 'FELL', bubble: 'Satisfied with that?',
         dj: 'Double jump', tap: 'Mash! SPACE / JUMP ↑', liqLabel: 'LIQUIDATION PRICE', liqDown: 'LIQ PRICE ↓', settings: 'Settings', mute: 'Mute', lang: 'Language', close: 'Close',
         zones: ['Ground','Sky','Stratosphere','Space','Moon','Mars','Asteroid Belt','Saturn','Black Hole','Heaven','???'], subs: ['GROUND','SKY','STRATOSPHERE','SPACE','TO THE MOON 🚀','MARS','ASTEROID BELT','SATURN','EVENT HORIZON','HEAVEN','VALHALLA'], jump: 'JUMP' },
   zh: { setHint: 'Use <b>⚙ Settings</b> (top right) to change language, sound and screen mode', lb: '排行', lbTitle: '排行榜', lbMe: '我的排名', lbEmpty: '暂无记录', lbOff: '在 Telegram 中打开即可参与排名', lbErr: '排行榜加载失败', fill: '铺满屏幕', fillHint: '关闭 = 放大的固定画面（默认）', howto: { move: ["<kbd>←</kbd><kbd>→</kbd> 或 <kbd>A</kbd><kbd>D</kbd> 移动", "点击屏幕<b>左 / 右</b>侧移动"], jump: ["<kbd>SPACE</kbd> 跳跃 · <b>长按</b>跳得更高", "<b>JUMP</b> 按钮 · <b>长按</b>跳得更高"], hype: "集齐 <b>H·Y·P·E</b> 字母触发灭火器飞行 → <b>连点</b>加速", tok: "获得 <b>HYPE 代币</b>：短暂飞行", usdc: "获得 <b>USDC 代币</b>：额外一次空中跳跃", liq: "碰到上升的<span class=\"liq\">清算价格</span>即游戏结束" },
-        start: '开始 (Space)', retry: '再来', best: '最高纪录', arrive: '到达{z}！', liq: '已清算', fell: '坠落', bubble: '这样就满足了？',
+        start: '开始', retry: '再来', best: '最高纪录', arrive: '到达{z}！', liq: '已清算', fell: '坠落', bubble: '这样就满足了？',
         dj: '二段跳', tap: '连点！SPACE / JUMP ↑', liqLabel: '清算价格', liqDown: '清算价格 ↓', settings: '设置', mute: '静音', lang: '语言', close: '关闭',
         zones: ['地面','天空','平流层','太空','月球','火星','小行星带','土星','黑洞','天堂','???'], subs: ['GROUND','SKY','STRATOSPHERE','SPACE','TO THE MOON 🚀','MARS','ASTEROID BELT','SATURN','EVENT HORIZON','HEAVEN','VALHALLA'], jump: '跳' },
   ja: { setHint: 'Use <b>⚙ Settings</b> (top right) to change language, sound and screen mode', lb: 'ランキング', lbTitle: 'リーダーボード', lbMe: '自分の順位', lbEmpty: 'まだ記録がありません', lbOff: 'Telegramで開くとランキングに参加できます', lbErr: 'ランキングを読み込めませんでした', fill: '画面いっぱいに表示', fillHint: 'オフ = 拡大された固定画面（デフォルト）', howto: { move: ["<kbd>←</kbd><kbd>→</kbd> または <kbd>A</kbd><kbd>D</kbd> で移動", "画面の<b>左 / 右</b>をタップで移動"], jump: ["<kbd>SPACE</kbd> でジャンプ · <b>長押し</b>で高く", "<b>JUMP</b> ボタン · <b>長押し</b>で高く"], hype: "<b>H·Y·P·E</b> の文字を集めると消火器で飛行 → <b>連打</b>でブースト", tok: "<b>HYPEトークン</b>取得で短時間飛行", usdc: "<b>USDCトークン</b>取得で空中ジャンプ1回追加", liq: "迫る<span class=\"liq\">清算価格</span>に触れるとゲームオーバー" },
-        start: 'スタート (Space)', retry: 'もう一度', best: 'ベスト', arrive: '{z}に到達！', liq: '清算された', fell: '落下', bubble: 'これで満足？',
+        start: 'スタート', retry: 'もう一度', best: 'ベスト', arrive: '{z}に到達！', liq: '清算された', fell: '落下', bubble: 'これで満足？',
         dj: '二段ジャンプ', tap: '連打！SPACE / JUMP ↑', liqLabel: '清算価格', liqDown: '清算価格 ↓', settings: '設定', mute: 'ミュート', lang: '言語', close: '閉じる',
         zones: ['地上','空','成層圏','宇宙','月','火星','小惑星帯','土星','ブラックホール','天国','???'], subs: ['GROUND','SKY','STRATOSPHERE','SPACE','TO THE MOON 🚀','MARS','ASTEROID BELT','SATURN','EVENT HORIZON','HEAVEN','VALHALLA'], jump: 'ジャンプ' },
 };
@@ -314,7 +314,7 @@ function applyLang(){
   try { const h = T('howto'), m = MOBILE ? 1 : 0;
     set('howto', [['◀▶','', h.move[m]], ['⤒','mint', h.jump[m]], ['H','pink', h.hype], ['<i class="coin"></i>','hyp', h.tok], ['$','blue', h.usdc], ['!','red', h.liq]]
       .map(([ic, cls, txt]) => `<div class="row"><span class="ic ${cls}">${ic}</span><span>${txt}</span></div>`).join(''), true); } catch(e) {}
-  set('startBtn', dead ? T('retry') : T('start'));
+  set('startBtn', (dead ? T('retry') : T('start')) + (MOBILE ? '' : ' (Space)'));
   set('setHint', T('setHint'), true);
   const ls = $('lbStart'); if (ls) { ls.hidden = !LB_URL; ls.textContent = '🏆 ' + T('lb'); }
   const cl = $('closeLB'); if (cl) cl.textContent = T('close');
@@ -515,7 +515,7 @@ function renderGameOver(){
   $overlay.innerHTML = `<div class="card"><div class="lbl">${liq ? T('liq') : T('fell')}</div><div class="big">${s.toFixed(1)}$</div>
     <div class="best">${window.__tgUser ? '@' + (window.__tgUser.username || window.__tgUser.first_name) + ' · ' : ''}${T('best')} ${best.toFixed(1)}$${isNew ? ' · NEW!' : ''}</div><div class="credit">made by <a class="alink" href="https://x.com/KORypto_JUN" target="_blank" rel="noopener"><b>JUN.hl</b></a></div></div>
     <div class="nftWrap"><img class="nft" src="${NFT_SRC}" alt=""><img class="tok" src="${PARTS.token.src}" alt=""></div><div class="bubble">${T('bubble')}</div>
-    <div class="btnrow">${LB_URL ? `<button type="button" class="lb-btn">🏆 ${T('lb')}${lbLast && lbLast.rank ? ' #' + lbLast.rank : ''}</button>` : ''}<button id="startBtn" class="over-btn">${T('retry')}</button></div>`;
+    <div class="btnrow">${LB_URL ? `<button type="button" class="lb-btn">🏆 ${T('lb')}${lbLast && lbLast.rank ? ' #' + lbLast.rank : ''}</button>` : ''}<button id="startBtn" class="over-btn">${T('retry')}${MOBILE ? '' : ' (Space)'}</button></div>`;
   const lbb = $overlay.querySelector('.lb-btn'); if (lbb) tap(lbb, openLB);
   const al = $overlay.querySelector('.alink'); if (al) { tap(al, openX); al.addEventListener('pointerdown', e => e.stopPropagation()); }
   tap($overlay.querySelector('#startBtn'), start);
