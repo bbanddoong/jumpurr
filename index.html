@@ -146,16 +146,25 @@
   #settings button:focus-visible{outline:3px solid #fff;}
   #wrap.liqflash::after{content:"";position:absolute;inset:0;background:#ff3352;animation:lf .5s ease-out forwards;pointer-events:none;z-index:3;}
   @keyframes lf{from{opacity:.85;}to{opacity:0;}}
-  #jumpBtn{position:absolute;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);
-           width:clamp(72px,22vw,96px);height:clamp(72px,22vw,96px);border-radius:50%;border:3px solid var(--ink);
-           background:var(--mint);color:var(--ink);font:900 clamp(15px,4vw,19px) "Nunito";box-shadow:0 6px 0 var(--ink);
-           cursor:pointer;touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;opacity:.8;}
-  #jumpBtn:active{transform:translateX(-50%) translateY(5px);box-shadow:0 1px 0 var(--ink);}
-  #jumpBtn:focus-visible{outline:3px solid #fff;outline-offset:2px;}
-  .letters.hype ~ #jumpBtn, #wrap.hype #jumpBtn{background:#ff6b8a;color:#fff;}
-  .steer{position:absolute;bottom:calc(34px + env(safe-area-inset-bottom,0px));font-size:30px;color:rgba(255,255,255,.55);text-shadow:0 2px 0 rgba(15,42,35,.5);pointer-events:none;display:none;}
-  .steer.l{left:20px;} .steer.r{right:20px;}
-  @media (pointer:coarse){ .steer{display:block;} }
+  /* touch controls: hidden on desktop, translucent on touch devices, visible only while playing */
+  #jumpBtn,.stick{display:none;}
+  @media (pointer:coarse){ #jumpBtn,.stick{display:block;} }
+  #wrap.play #jumpBtn,#wrap.play .stick{opacity:1;}
+  #jumpBtn{position:absolute;right:22px;bottom:calc(22px + env(safe-area-inset-bottom,0px));
+           width:clamp(74px,22vw,96px);height:clamp(74px,22vw,96px);border-radius:50%;border:2px solid rgba(255,255,255,.7);
+           background:rgba(143,240,208,.4);color:#fff;font:900 clamp(14px,3.8vw,17px) "Nunito";letter-spacing:.06em;
+           backdrop-filter:blur(2px);cursor:pointer;touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;
+           opacity:0;transition:opacity .25s,transform .08s,background .15s;text-shadow:0 2px 0 rgba(15,42,35,.5);pointer-events:none;}
+  #jumpBtn.on{transform:scale(.93);background:rgba(143,240,208,.5);}
+  #wrap.hype #jumpBtn{background:rgba(255,107,138,.45);border-color:#fff;}
+  .stick{position:absolute;left:22px;bottom:calc(22px + env(safe-area-inset-bottom,0px));width:clamp(96px,28vw,124px);height:clamp(96px,28vw,124px);
+         border-radius:50%;border:2px solid rgba(255,255,255,.6);background:rgba(15,42,35,.22);backdrop-filter:blur(2px);
+         pointer-events:none;opacity:0;transition:opacity .25s;}
+  .stick .knob{position:absolute;left:50%;top:50%;width:44%;height:44%;border-radius:50%;background:rgba(255,255,255,.75);border:2px solid rgba(15,42,35,.5);box-shadow:0 2px 6px rgba(0,0,0,.25);
+               transform:translate(-50%,-50%);}
+  .stick .arr{position:absolute;top:50%;transform:translateY(-50%);font:900 18px "Nunito";color:rgba(255,255,255,.7);}
+  .stick .arr.l{left:10px;} .stick .arr.r{right:10px;}
+  .stick.on{background:rgba(255,255,255,.18);} .stick.on .knob{background:rgba(255,255,255,.9);}
   #tapHint{position:absolute;left:0;right:0;bottom:calc(20% + env(safe-area-inset-bottom,0px));text-align:center;font-family:"Jua";
            font-size:clamp(18px,5vw,26px);color:#fff;text-shadow:0 3px 0 var(--ink);pointer-events:none;opacity:0;transition:opacity .2s;}
   #tapHint.show{opacity:1;animation:hy .25s infinite alternate;}
@@ -175,7 +184,7 @@
   <button id="gear" aria-label="settings">⚙</button>
   <div id="zoneFlash"></div>
   <div id="tapHint"></div>
-  <div class="steer l" aria-hidden="true">◀</div><div class="steer r" aria-hidden="true">▶</div>
+  <div class="stick" id="stick" aria-hidden="true"><span class="arr l">◀</span><span class="arr r">▶</span><div class="knob"></div></div>
   <div id="lb" hidden>
     <div class="panel" role="dialog" aria-modal="true">
       <h2></h2>
@@ -424,16 +433,39 @@ addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; if (e.key==
 addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; if (e.key===' '||e.key==='Enter'||e.key==='ArrowUp'||e.key.toLowerCase()==='w') jumpUp(); });
 const wrap = document.getElementById('wrap');
 const pointers = new Map();
-const dirAt = e => { const r = wrap.getBoundingClientRect(); return (e.clientX - r.left) < r.width/2 ? -1 : 1; };
-const recalcTouch = () => { let d = 0; for (const v of pointers.values()) d += v; touchDir = Math.max(-1, Math.min(1, d)); };
-wrap.addEventListener('pointerdown', e => { if (!running || paused || e.target.closest('#jumpBtn')) return; pointers.set(e.pointerId, dirAt(e)); recalcTouch(); });
 const $jump = document.getElementById('jumpBtn');
-$jump.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); if (running && !paused) jumpDown(); });
-$jump.addEventListener('pointerup', jumpUp); $jump.addEventListener('pointercancel', jumpUp); $jump.addEventListener('pointerleave', jumpUp);
-wrap.addEventListener('pointermove', e => { if (pointers.has(e.pointerId)) { pointers.set(e.pointerId, dirAt(e)); recalcTouch(); } });
-const dropPointer = e => { pointers.delete(e.pointerId); recalcTouch(); };
+const $stick = document.getElementById('stick'), $knob = $stick.querySelector('.knob');
+let stickId = null, stickX0 = 0, stickY0 = 0;
+const STICK_R = 40;   // px of thumb travel for full speed
+function stickMove(e){
+  const dx = e.clientX - stickX0, dy = e.clientY - stickY0;
+  const k = Math.max(-1, Math.min(1, dx / STICK_R));
+  touchDir = Math.abs(k) < 0.15 ? 0 : k;                       // analog: small tilt = slow drift
+  const lim = $stick.getBoundingClientRect().width * 0.28;
+  const kx = Math.max(-lim, Math.min(lim, dx * 0.9)), ky = Math.max(-lim*0.4, Math.min(lim*0.4, dy * 0.3));
+  $knob.style.transform = `translate(calc(-50% + ${kx}px), calc(-50% + ${ky}px))`;
+}
+wrap.addEventListener('pointerdown', e => {
+  if (!running || paused || e.pointerType === 'mouse' || e.target.closest('#gear,#settings,#lb')) return;
+  const pr = wrap.getBoundingClientRect();
+  if (e.clientX - pr.left < pr.width / 2) {                     // left half → joystick anchored where the thumb lands
+    if (stickId !== null) return;
+    stickId = e.pointerId; stickX0 = e.clientX; stickY0 = e.clientY;
+    const sw = $stick.offsetWidth, sh = $stick.offsetHeight;
+    $stick.style.left = Math.max(8, Math.min(pr.width/2 - sw, e.clientX - pr.left - sw/2)) + 'px';
+    $stick.style.bottom = Math.max(8, pr.bottom - e.clientY - sh/2) + 'px';
+    $stick.classList.add('on'); stickMove(e);
+  } else {                                                      // right half → jump (anywhere on that side)
+    e.preventDefault(); jumpDown(); $jump.classList.add('on'); pointers.set(e.pointerId, 'jump');
+  }
+});
+wrap.addEventListener('pointermove', e => { if (e.pointerId === stickId) stickMove(e); });
+const dropPointer = e => {
+  if (e.pointerId === stickId) { stickId = null; touchDir = 0; $stick.classList.remove('on'); $knob.style.transform = 'translate(-50%,-50%)'; }
+  if (pointers.get(e.pointerId) === 'jump') { pointers.delete(e.pointerId); jumpUp(); $jump.classList.remove('on'); }
+};
 addEventListener('pointerup', dropPointer); addEventListener('pointercancel', dropPointer);
-$btn.addEventListener('click', start);
+tap($btn, start);
 const $settings = document.getElementById('settings'), $gear = document.getElementById('gear'), $muteChk = document.getElementById('muteChk'), $fillChk = document.getElementById('fillChk'), $lb = document.getElementById('lb');
 let paused = false;
 function openSettings(){ audioInit(); paused = true; $muteChk.checked = AU.muted; $fillChk.checked = FILL; $settings.hidden = false; document.getElementById('closeSet').focus(); }
@@ -458,7 +490,8 @@ addEventListener('keydown', e => { if (e.key === 'Escape') { if (!$settings.hidd
 document.addEventListener('visibilitychange', () => { if (document.hidden && running && !paused) openSettings(); });
 addEventListener('blur', () => { if (running && !paused) openSettings(); });
 
-function start(){ audioInit(); pointers.clear(); touchDir = 0; reset(); running = true; $overlay.hidden = true; $overlay.classList.remove('over'); setZone(ZONES[0], false); if (AU.ctx) { AU.bgm.next = AU.ctx.currentTime + 0.05; AU.bgm.step = 0; AU.bgm.zi = -1; } }
+let startedAt = 0;
+function start(){ if (Date.now() - startedAt < 500) return; startedAt = Date.now(); audioInit(); pointers.clear(); touchDir = 0; stickId = null; reset(); running = true; wrap.classList.add('play'); $overlay.hidden = true; $overlay.classList.remove('over'); setZone(ZONES[0], false); if (AU.ctx) { AU.bgm.next = AU.ctx.currentTime + 0.05; AU.bgm.step = 0; AU.bgm.zi = -1; } }
 let lastOver = null;
 function renderGameOver(){
   if (!lastOver) return; const { s, liq, isNew } = lastOver, z = zoneFor(s);
@@ -469,11 +502,11 @@ function renderGameOver(){
     ${LB_URL ? `<button type="button" class="lb-btn over-lb">🏆 ${T('lb')}${lbLast && lbLast.rank ? ' · #' + lbLast.rank : ''}</button>` : ''}
     <button id="startBtn" class="over-btn">${T('retry')}</button>`;
   const lbb = $overlay.querySelector('.lb-btn'); if (lbb) tap(lbb, openLB);
-  $overlay.querySelector('button').addEventListener('click', start);
+  tap($overlay.querySelector('#startBtn'), start);
   buildRing();
 }
 function gameOver(liq){
-  running = false; dead = true; sfx.sirenOff(); sfx.over(); if (liq) { shakeScreen(14, 30); wrap.classList.add('liqflash'); setTimeout(() => wrap.classList.remove('liqflash'), 500); }
+  running = false; dead = true; wrap.classList.remove('play'); $stick.classList.remove('on'); $jump.classList.remove('on'); sfx.sirenOff(); sfx.over(); if (liq) { shakeScreen(14, 30); wrap.classList.add('liqflash'); setTimeout(() => wrap.classList.remove('liqflash'), 500); }
   const s = maxY / PX_PER_DOLLAR;
   if (s > best) { best = s; try { localStorage.setItem('jumpurr-best', best.toFixed(1)); } catch(e) {} }
   lastOver = { s, liq, isNew: s >= best && s > 0 };
@@ -547,8 +580,9 @@ function update(){
   const p = player;
   let dir = (keys['arrowleft']||keys['a'] ? -1 : 0) + (keys['arrowright']||keys['d'] ? 1 : 0) + touchDir;
   dir = Math.max(-1, Math.min(1, dir));
+  const dsign = dir > 0.15 ? 1 : dir < -0.15 ? -1 : 0;
   p.vx += dir * 0.9; p.vx *= 0.86;
-  if (dir !== 0 && dir !== p.face) { p.face = dir; p.turnT = 0; } p.turnT++;
+  if (dsign !== 0 && dsign !== p.face) { p.face = dsign; p.turnT = 0; } p.turnT++;
   p.x += p.vx;
   const L = 4 - p.w*0.22, R = W - 4 - p.w*0.78;   // walls (the sprite's visible body is narrower than its box)
   if (p.x < L) { p.x = L; if (p.vx < -1.5) sfx.land(false); p.vx = -p.vx * 0.3; }
